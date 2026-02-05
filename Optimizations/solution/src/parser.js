@@ -5,10 +5,11 @@ export class Parser {
       const rows = input.split('\n');
       if(rows.length < 2) return
 
-      const header = rows.shift();
+      const header = rows[0]
       const columns = parseHeader(header);
 
-      for (const row of rows) {
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i]
         if (!row) continue;
         const parsedRow = parseRow(row, columns);
         if(onRow) onRow(parsedRow)
