@@ -11,7 +11,7 @@ export class Formatter {
   #layout = null
 
   constructor(layout = DEFAULT_LAYOUT) {
-    this.#layout = Array.isArray(layout) && layout.length ? layout : DEFAULT_LAYOUT;
+    this.#layout = layout
   }
 
   formatRow(row) {
