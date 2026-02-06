@@ -44,8 +44,8 @@ test('buildAccumulator collects rows and metrics', () => {
   assert.equal(metrics.minN, 3);
 });
 
-test('Table.fromRaw computes metrics and sorts', () => {
-  const table = Table.fromRaw(DATA, SCHEMA, Parser);
+test('Table.fill computes metrics and sorts', () => {
+  const table = new Table(SCHEMA).fill(DATA, Parser);
 
   assert.equal(table.metrics.maxDensity, 13712);
   assert.equal(table.rows[0].relativeDensity, 100);
@@ -53,7 +53,7 @@ test('Table.fromRaw computes metrics and sorts', () => {
 });
 
 test('Table getters expose internal state', () => {
-  const table = Table.fromRaw(DATA, SCHEMA, Parser);
+  const table = new Table(SCHEMA).fill(DATA, Parser);
 
   assert.ok(Array.isArray(table.rows));
   assert.equal(table.schema, SCHEMA);
@@ -61,7 +61,7 @@ test('Table getters expose internal state', () => {
 });
 
 test('Table full cycle fills all rows with computed column and sorted order', () => {
-  const table = Table.fromRaw(DATA, SCHEMA, Parser);
+  const table = new Table(SCHEMA).fill(DATA, Parser);
 
   assert.equal(table.rows.length, 10);
   assert.equal(table.rows[0].city, 'Lagos');
@@ -73,12 +73,12 @@ test('Table full cycle fills all rows with computed column and sorted order', ()
   }
 });
 
-test('Table.fromRaw throws on invalid numeric value', () => {
+test('Table.fill throws on invalid numeric value', () => {
   const broken = `city,population,area,density,country
 CityX,1000,500,bad-number,CountryX`;
 
   assert.throws(() => {
-    Table.fromRaw(broken, SCHEMA, Parser);
+    new Table(SCHEMA).fill(broken, Parser);
   }, /Invalid value/);
 });
 

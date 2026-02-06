@@ -13,22 +13,20 @@ export class Table {
     this.#metrics = initMetrics(config.metrics);
   }
 
-  static fromRaw(raw, schema, parser){
-    const table = new Table(schema)
-
-    const { collectRow, metrics, rows } = buildAccumulator(schema, {
+  fill(raw, parser) {
+    const { collectRow, metrics, rows } = buildAccumulator(this.#schema, {
       normalizeRow,
       aggregates: AGGREGATES,
     });
     
-    parser.parse(raw, collectRow)
+    parser.parse(raw, collectRow);
 
-    table.#table = rows
-    table.#metrics = metrics
-    populateComputedColumns(table.#table, table.#schema.columns, table.#metrics)
-    sortRows(table.#table, table.#schema.sortBy)
+    this.#table = rows;
+    this.#metrics = metrics;
+    populateComputedColumns(this.#table, this.#schema.columns, this.#metrics);
+    sortRows(this.#table, this.#schema.sortBy);
 
-    return table
+    return this;
   }
 
   get rows() {

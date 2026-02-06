@@ -4,7 +4,7 @@ import { Parser } from "./src/parser.js";
 import { SCHEMA } from "./src/schema.js";
 import { Table } from "./src/table.js";
 
-const t = Table.fromRaw(DATA, SCHEMA, Parser);
+const t = new Table(SCHEMA).fill(DATA, Parser);
 const formatter = new Formatter();
 
 formatter.print(t.rows);
