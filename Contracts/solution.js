@@ -35,6 +35,7 @@ class Basket {
   #errors = [];
   #onChange;
   #pending = [];
+  #result;
 
   constructor({ limit }, onChange = async () => {}) {
     this.#limit = limit;
@@ -59,11 +60,15 @@ class Basket {
   }
 
   end() {
-    return Promise.all(this.#pending).then(() => ({
-      items: [...this.#items],
-      total: this.#total,
-      errors: this.#errors.map((error) => error.message),
-    }));
+    if (!this.#result) {
+      this.#result = Promise.all(this.#pending).then(() => ({
+        items: [...this.#items],
+        total: this.#total,
+        errors: this.#errors.map((error) => error.message),
+      }));
+    }
+
+    return this.#result;
   }
 
 
@@ -92,6 +97,7 @@ const main = async () => {
     console.log('Total:', total);
     console.log('Errors:', errors);
   });
+  
 };
 
 main();
