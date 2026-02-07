@@ -1,8 +1,7 @@
 "use strict";
 
 import { buildAccumulator } from './accumulator.js';
-import { parse } from './parser.js';
-import { AGGREGATES,initMetrics, normalizeRow, populateComputedColumns, sortRows } from './util.js';
+import { parse as defaultParse } from './parser.js';
 
 export const AGGREGATES = {
   max: (acc, row, field) => {
@@ -87,7 +86,7 @@ export class Table {
     this.#metrics = initMetrics(config.metrics);
   }
 
-  fill(raw) {
+  fill(raw, parse = defaultParse) {
     const { collectRow, metrics, rows } = buildAccumulator(this.#schema, {
       normalizeRow,
       aggregates: AGGREGATES,
@@ -113,5 +112,9 @@ export class Table {
 
   get schema() {
     return this.#schema;
+  }
+
+  get layout() {
+    return this.#schema.columns.map(({ width }) => ({ width }));
   }
 }

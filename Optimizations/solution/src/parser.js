@@ -1,4 +1,4 @@
-import { stripBom } from "./util";
+import { stripBom } from "./util.js";
 
 
 const parseHeader = (header) => {

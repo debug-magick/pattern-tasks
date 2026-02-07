@@ -1,19 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { Parser } from './src/parser.js';
+import { parse } from './src/parser.js';
 import { buildAccumulator } from './src/accumulator.js';
 import { Table } from './src/table.js';
 import { SCHEMA } from './src/schema.js';
 import { DATA } from './data.js';
+import { Formatter } from './src/formatter.js';
+import { stripBom } from './src/util.js';
 
 
 
-test('Parser.parse emits rows and trims header', () => {
+test('parse emits rows and trims header', () => {
   const input = '\uFEFFcity, population\nRome, 1\n\n';
   const rows = [];
 
-  Parser.parse(input, (row) => rows.push(row));
+  parse(input, (row) => rows.push(row));
 
   assert.equal(rows.length, 1);
   assert.deepEqual(Object.keys(rows[0]), ['city', 'population']);
@@ -45,7 +47,7 @@ test('buildAccumulator collects rows and metrics', () => {
 });
 
 test('Table.fill computes metrics and sorts', () => {
-  const table = new Table(SCHEMA).fill(DATA, Parser);
+  const table = new Table(SCHEMA).fill(DATA, parse);
 
   assert.equal(table.metrics.maxDensity, 13712);
   assert.equal(table.rows[0].relativeDensity, 100);
@@ -53,7 +55,7 @@ test('Table.fill computes metrics and sorts', () => {
 });
 
 test('Table getters expose internal state', () => {
-  const table = new Table(SCHEMA).fill(DATA, Parser);
+  const table = new Table(SCHEMA).fill(DATA, parse);
 
   assert.ok(Array.isArray(table.rows));
   assert.equal(table.schema, SCHEMA);
@@ -61,7 +63,7 @@ test('Table getters expose internal state', () => {
 });
 
 test('Table full cycle fills all rows with computed column and sorted order', () => {
-  const table = new Table(SCHEMA).fill(DATA, Parser);
+  const table = new Table(SCHEMA).fill(DATA, parse);
 
   assert.equal(table.rows.length, 10);
   assert.equal(table.rows[0].city, 'Lagos');
@@ -78,12 +80,35 @@ test('Table.fill throws on invalid numeric value', () => {
 CityX,1000,500,bad-number,CountryX`;
 
   assert.throws(() => {
-    new Table(SCHEMA).fill(broken, Parser);
+    new Table(SCHEMA).fill(broken, parse);
   }, /Invalid value/);
 });
 
-test('Parser.parse ignores input with no data rows', () => {
+test('parse ignores input with no data rows', () => {
   const rows = [];
-  Parser.parse('city,density', (row) => rows.push(row));
+  parse('city,density', (row) => rows.push(row));
   assert.equal(rows.length, 0);
+});
+
+test('stripBom removes BOM from start only', () => {
+  assert.equal(stripBom('\uFEFFabc'), 'abc');
+  assert.equal(stripBom('\uFFFEabc'), 'abc');
+  assert.equal(stripBom('\u0000\u0000\u00FE\u00FFabc'), 'abc');
+  assert.equal(stripBom('a\uFEFFbc'), 'a\uFEFFbc');
+});
+
+
+test('Formatter.print writes formatted lines', () => {
+  const formatter = new Formatter([{ width: 2 }, { width: 2 }]);
+  const rows = [{ a: 'A', b: '1' }, { a: 'B', b: '2' }];
+  const logs = [];
+  const prev = console.log;
+  console.log = (msg) => logs.push(msg);
+  try {
+    formatter.print(rows);
+  } finally {
+    console.log = prev;
+  }
+
+  assert.deepEqual(logs, ['A ' + ' 1', 'B ' + ' 2']);
 });

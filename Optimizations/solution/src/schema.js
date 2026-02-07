@@ -1,13 +1,14 @@
 export const SCHEMA = {
   columns: [
-    { name: 'city', type: 'string' },
-    { name: 'population', type: 'number' },
-    { name: 'area', type: 'number' },
-    { name: 'density', type: 'number' },
-    { name: 'country', type: 'string' },
+    { name: 'city', type: 'string', width: 18 },
+    { name: 'population', type: 'number', width: 10 },
+    { name: 'area', type: 'number', width: 8 },
+    { name: 'density', type: 'number', width: 8 },
+    { name: 'country', type: 'string', width: 18 },
     {
       name: 'relativeDensity',
       type: 'number',
+      width: 6,
       calculate: (row, metrics) =>
         Math.round((row.density * 100) / metrics.maxDensity),
     },

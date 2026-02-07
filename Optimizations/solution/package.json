@@ -11,5 +11,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "load": "node load.js",
+    "load:deopt": "node --trace-deopt --trace-opt load.js"
   }
 }
